@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renlak Suplement Kesehatan 2026 - Versi Final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary-green: #2e7d32; --secondary-green: #f1f8e9; --sidebar-width: 260px; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        
+        .sidebar { height: 100vh; background: white; border-right: 1px solid #dee2e6; position: fixed; width: var(--sidebar-width); z-index: 1000; transition: all 0.3s ease; left: 0; }
+        .sidebar.collapsed { left: calc(var(--sidebar-width) * -1); }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        .sidebar-overlay.active { display: block; }
+
+        .nav-link { color: #555; padding: 12px 20px; display: flex; align-items: center; border-radius: 8px; margin: 5px 15px; text-decoration: none; transition: 0.3s; cursor: pointer; }
+        .nav-link:hover { background-color: var(--secondary-green); color: var(--primary-green); }
+        .nav-link.active { background-color: var(--primary-green); color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .nav-link i { margin-right: 12px; font-size: 20px; }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; transition: all 0.3s ease; }
+        .main-content.expanded { margin-left: 0; }
+
+        .form-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .header-section { margin-bottom: 30px; border-left: 5px solid var(--primary-green); padding-left: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 20px; }
+            .sidebar { left: calc(var(--sidebar-width) * -1); }
+            .sidebar.show { left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar shadow-sm" id="sidebar">
+    <div class="p-4 mb-3 text-center border-bottom">
+        <h4 class="fw-bold text-success mb-0">App SK 2026</h4>
+    </div>
+    <nav class="nav flex-column">
+        <a class="nav-link active" id="menuInput" onclick="showPage('input')"><i class="material-icons">edit_note</i> Input Data</a>
+        <a class="nav-link" id="menuCluster" onclick="showPage('cluster')"><i class="material-icons">search</i> Cari Produsen</a>
+        <a class="nav-link" href="https://docs.google.com/spreadsheets/d/1fHEPIrueU4lDr4iOm2LpIlc2jZ7MiMPwESL-zLWZCeM/edit#gid=0" target="_blank"><i class="material-icons">storage</i> Lihat Sheet</a>
+    </nav>
+</div>
+
+<div class="main-content" id="mainContent">
+    <div class="header-section">
+        <div><h2 class="fw-bold m-0" style="font-size: 1.5rem;">Renlak SK 2026</h2></div>
+        <button class="btn btn-light" id="btnToggle" onclick="toggleSidebar()"><i class="material-icons">menu</i></button>
+    </div>
+
+    <div id="sectionInput">
+        <div class="form-container">
+            <form id="samplingForm" class="row g-3">
+                <div class="col-6 col-md-3"><label class="form-label">Tanggal</label><input type="text" id="tglSampling" class="form-control bg-light" readonly></div>
+                <div class="col-6 col-md-3"><label class="form-label">Bulan</label><input type="text" id="bulanAuto" class="form-control bg-light text-center fw-bold" readonly></div>
+                <div class="col-md-6"><label class="form-label">Petugas</label><input type="text" id="petugas" class="form-control" placeholder="Nama Petugas" required></div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Nama Produk</label>
+                    <input type="text" id="namaProduk" class="form-control" placeholder="Contoh: Vitalong C" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Produsen</label>
+                    <div class="input-group">
+                        <input type="text" id="namaProdusen" class="form-control" placeholder="Cari di database...">
+                        <button class="btn btn-success" type="button" onclick="showPage('cluster')">CARI DB</button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Kategori</label>
+                    <select id="kategori" class="form-select" required>
+                        <option value="">Pilih...</option>
+                        <option>Produk dari Produsen Riwayat TMS</option>
+                        <option>MLM</option>
+                        <option>Sampel Kasus Khusus Pemeriksaan</option>
+                        <option>Produk SK Import</option>
+                        <option>lain-lain</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Sub Kategori</label>
+                    <select id="subKategori" class="form-select" required>
+                        <option value="">Pilih...</option>
+                        <option>Klaim Stamina</option><option>Daya Tahan Tubuh</option><option>Kolesterol/lemak darah</option><option>Nafsu makan</option><option>Klaim Pegal Linu</option><option>lainnya (Vitamin C)</option><option>Multivitamin</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4"><label class="form-label">Metode</label><select id="metode" class="form-select"><option>Offline</option><option>Online</option></select></div>
+                <div class="col-md-8"><label class="form-label">Tempat Sampling</label><input type="text" id="tempatSampling" class="form-control" placeholder="Nama Sarana"></div>
+                
+                <div class="col-md-4"><label class="form-label">NIE</label><input type="text" id="nie" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Batch</label><input type="text" id="noBatch" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Exp Date</label><input type="text" id="expDate" class="form-control"></div>
+
+                <div class="col-12 text-end mt-4">
+                    <button type="submit" id="btnSimpan" class="btn btn-success w-100 py-2 fw-bold">KIRIM KE GOOGLE SHEET</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="sectionCluster" style="display:none;">
+        <div class="form-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Database Produsen</h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="showPage('input')">Kembali</button>
+            </div>
+                     <input type="text" id="lookupInput" class="form-control mb-4" placeholder="Ketik nama produsen..." oninput="doLookup()">
+            <div id="lookupResults" style="max-height: 60vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dbProdusen = [
+         { nama: "Agung Medica Indonesia", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Agro Terra Makmur", klaster: "B", riwayat: "Alt" },
+    { nama: "CV Agung Mandiri Kuat", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Agung Prima", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Akar Daun", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Al Manar Herbafit", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Al-afiat sehat alami", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Alam Hijau Selaras", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Albaik Herbal Indonesia", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Albiruni Sukses Bersinar", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Al-Ghuroba", klaster: "B", riwayat: "ka, akk, alt, entero" },
+    { nama: "CV Amal Ahmada Arba'a", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Arbain Jaya Mandiri", klaster: "B", riwayat: "kadar etanol, clostridia. kadar air, AKK" },
+    { nama: "CV ardhi Jaya", klaster: "B", riwayat: "alt, akk, ka" },
+    { nama: "CV Ash Shihhah Sejahtera", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV As-Shohwah Herbal", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Asy syifa", klaster: "B", riwayat: "alt, akk, ka, coff" },
+    { nama: "CV Att Thollah", klaster: "B", riwayat: "kadar etanol" },
+    { nama: "CV Basmallah Food", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Berkah Alam", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Bin Dawood", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Bumi Cloud", klaster: "B", riwayat: "volume terpindahkan" },
+    { nama: "CV Bumi Wijaya", klaster: "B", riwayat: "akk" },
+    { nama: "CV Citra boga nusantara", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Darusyifa International", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV De Nature Indonesia", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV El hanif Putra mandiri Group", klaster: "B", riwayat: "alt, akk, ka" },
+    { nama: "CV Elanazma Prima", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Fotosintesis", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV gatutkaca", klaster: "B", riwayat: "kadar air" },
+    { nama: "CV Genta Padi", klaster: "B", riwayat: "ada tapi belum ditulis, alt, entero" },
+    { nama: "CV Genta Ragil Herbs", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV GP Mandiri", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Griya An Nur", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Hanif Herbal", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV hasanah herbal", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Herba Utama", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Herbacare", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Herbal Indo Utama", klaster: "A", riwayat: "alt, akk, enterobacteriaeae, clostridia, cd, kadar air" },
+    { nama: "CV Herbal inovation center", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Herbal Mulya", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Herballove Indonesia", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Herbaltama Persada", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Jaya Natural", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Jogja Natural Herbal", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Kahayang Zinergi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Kandin Berkah Mandiri", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Kembar Sari", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Kembar Sejati", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Khalila", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Kharisma Herbal Nusantara", klaster: "B", riwayat: "ALT, AKK" },
+    { nama: "CV lintang sumiar", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Mitra Herbal Nusantara", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV multi Herbal sinergi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Natura Alamindo", klaster: "B", riwayat: "akk" },
+    { nama: "CV Naturafit Thibbunnabawi", klaster: "C", riwayat: "alt, akk, enterobacteriaeae, clostridia, coff, shigella, e coli" },
+    { nama: "CV Naturaid", klaster: "B", riwayat: "clostridia" },
+    { nama: "CV Neosyifa", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Nutrima Sehatalarmi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Putri Sakti Husada", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Putri Sejati", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Rizki Abadi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Rochman Jaya", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV Rony Dua Putri", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Santeri", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Sedayu Agro Industries", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Sumber Sehat Lestari", klaster: "C", riwayat: "tidak ada" },
+    { nama: "CV super Prima", klaster: "B", riwayat: "alt, akk, ka,entero" },
+    { nama: "CV Syifa Herbal alami", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Tirta Sakti", klaster: "C", riwayat: "tidak ada" },
+    { nama: "cv toga nusantara", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "CV Vermindo Internasional", klaster: "B", riwayat: "Cd, kadar air, clostrdia" },
+    { nama: "CV Vicomas Internasional", klaster: "B", riwayat: "Alt, Akk" },
+    { nama: "Heilongjiang Tianlong Pharmaceutical Co Ltd", klaster: "C", riwayat: "tidak ada" },
+    { nama: "Herbal Rempah Karuhun", klaster: "C", riwayat: "tidak ada" },
+    { nama: "IKOT Qolbun salim", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "indo abadi sari makmur", klaster: "A", riwayat: "tidak ada" },
+    { nama: "IP Farma", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Air Madu", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Akar Mujarab", klaster: "C", riwayat: "tidak ada" },
+    { nama: "pj alam subur manjur", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PJ Barokah Perkasa", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Beruang", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Herba Mint", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Herbal nusantara", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PJ Herbal Sentosa Indonesia", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Karomah", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Kita Jaya Bersama Indonesia", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Kuda Sumbawa", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Luwak Jaya", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Maju Jaya", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Moro Jaya", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Mutiara", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Nyonya karsih", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PJ Prananda Jaya Sukses", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Pusaka ibu madura", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PJ Shinshe tan", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PJ Sukses Makmur", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Sumber Makmur", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Unggul Jaya Abadi", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PJ Wijaya", klaster: "B", riwayat: "kofein" },
+    { nama: "PT Abbott Indonesia", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Afifarma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Agaricus Sido Makmur Sentosa", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Aimfood Manufacturing Indonesia", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT air mancur", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Albaik Herbal Indonesia", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Amerta Indah Otsuka", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Anugrah Bio Natura Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Aquasolve Sanaria", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Arto Pharma Indonesia", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Aventis Pharma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Balatif", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Berkah Inayah Medika", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Berlico Mulia Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Bernofarm", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Beta Pharmacon", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT binari herbal marketing", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Bintang Kupu Kupu", klaster: "A", riwayat: "kadar etanol" },
+    { nama: "PT Bintang Toedjoe", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Biolife Medilab", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Biotek Farmasi indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Bison", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Brigit Biofarmaka", klaster: "B", riwayat: "ALT, AKK, kadar air" },
+    { nama: "PT Buana Tirta Utama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT cahaya Biru", klaster: "B", riwayat: "ka, cd" },
+    { nama: "PT Caprifarmindo Laboratories", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Capung Indah Abadi", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Cayadewi Sehat Indonesia Abadi", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Cendo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Citra Deli Kreasitama", klaster: "C", riwayat: "clostridia, ka, entero, cd" },
+    { nama: "PT Comet Crown Pharmaceutical Industries", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Corsa Industries", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Dami Sariwarna", klaster: "B", riwayat: "ka, sorbat, alt, clostridia, coff" },
+    { nama: "PT Darya Varia Laboratoria Tbi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Daxen Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Delta Atsiri Prima", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Deltomed Laboratories", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Dexa Medica", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Dipa Pharmalab Intersains", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Dragon Prima Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Dua Lima Industries", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Eagle Indo Pharma", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Elanazma Prima", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Elim Sentosa Abadi", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Erlimpex", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT ERLANGGA EDI LABORATORIES (ERELA)", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Errita Pharma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Eshbi Putra Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Fabindo Sejahtera", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Fathonah Amanah Shidiq Tabligh", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Faza Cipta Kreasi", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Ferron Par Pharmaceuticals", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Galenium Pharmasia Laboratories", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Genero Pharmaceuticals", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Githa Darma Optima", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Golden Coral Corporindo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT GRACIA PHARMINDO", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Graha Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Gratia Husada Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Guardian Pharmatama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Gujati Utama", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Haldin Pacific Semesta", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Harsen Laboratories", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Harvest Gorontalo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Helmigs Prima Sejahtera", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Herba Emas Wahidatama", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Herba Utama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Herbacore", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Herbal Insani", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Herbal Manufacturing Malindo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Herbalindo Mandiri Sentosa", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Hermed", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Hida Manta Inda", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Holistic Bio Medicine", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Ibu Tjipto", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Ifars Pharmaceutical Laboratories", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Ikapharmindo Putramas Tbk", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Ikong", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Indesso Aroma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Indo Squa Prima", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Indofarma Tbk", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Indoherb Global Manufacture", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Industri Djamu & Pharmasi Tjap Djago", klaster: "A", riwayat: "e coli, entero, akk, clostri" },
+    { nama: "PT Industri Jamu Borobudur", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Industri Jamu dan Farmasi Sido Muncul Tbk", klaster: "A", riwayat: "alt, akk, ka, entero, clostridia" },
+    { nama: "PT Infion", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT INSAN INDOFARMA", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Insular Multi Natural", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Interbat", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT intra aries", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Irawan Djaja Agung", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Ismut Fitomedika Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT jamu Iboe Jaya", klaster: "B", riwayat: "alt, akk, kadar air, entero" },
+    { nama: "PT Kalbe Farma", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Karunia Alam Segar", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Karya Pak Oles Tokcer", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Kimia Farma Tbk", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Kimia Farma Tbk (Plant) Benjam", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Kino Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Konimex", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Kosmetika Global Health", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Lapi Laboratories", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Lentera Agung Raya", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Leo Agung Raya", klaster: "A", riwayat: "alt, ka, entero" },
+    { nama: "PT Lipwih Synergylab Estetika", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Lucas Djaja", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Mahakam Beta Farma", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Mahkotadewa Indonesia", klaster: "C", riwayat: "kadar etanol, clostridia, alt, ka" },
+    { nama: "PT Makin Jaya Agung", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Marguna Tarulata APK Farma", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Mecosin Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Medifarma Laboratories", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Medikon Prima Laboratories", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Meprofarm", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Merck Tbk", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Merpati Mahardika", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Metiska Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Midix Graha Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Mirakel Herbal Abadi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Mitra Abadi Nutraceutical", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT MULIA FARMA SUCI", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Multi Indomandiri", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Mustika Ratu Tbk", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Mutiara Mukti Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Natrindo Surya Prima", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Natura Aromatik Nusantara", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Natura Laboratoria Prima", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Natura Nuswantara Nirmala", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT naturindo Fresh", klaster: "B", riwayat: "alt, akk, entero, clostri, ka" },
+    { nama: "PT Nelico Indopharma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Nova Chemie Utama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Novell Pharmaceutical Laboratories", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Nufarindo", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Nutri Vita Pharma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Payung Pusaka Mandiri", klaster: "B", riwayat: "kadar air, alt, akk, entero" },
+    { nama: "PT Perdana Sakti Indonesia", klaster: "A", riwayat: "ka" },
+    { nama: "PT Perseroan Dagang dan Industri Farmasi Afiat", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Pertiwi Agung", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Perusahaan Jamu Air Mancur", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Phapros", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Pharma Health Care", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Phytesindo Biotek", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Phytochemindo Reksa", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Phytomed Neo Farma", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Pratapa Nirmala", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Prima Medika Laboratories", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Prima Solusi Medikal", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Promedrahardjo Farmasi Industri", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Prosweal Indomax", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Putro Kinasih", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Pyridam Farma", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT PZ CUSSONS INDONESIA", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Rachma Sari Group", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Rama Emerald Multi Sukses", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Rifa Hijau Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Royal Medicalink Pharmalab", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT sabdo palon", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Samco Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Sanbe Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Saraka Mandiri Semesta", klaster: "A", riwayat: "kadar air" },
+    { nama: "PT Saras Subur Abadi", klaster: "B", riwayat: "ALT, AKK" },
+    { nama: "PT Sari Alam Sukabumi", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Sari Enesis Indah", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Seger Waras", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Sejahtera Lestari Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Semarang Herbal Indo Plant", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Setia Kawan Abadi", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Shiba Sukses Sejahtera", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Sido jolo", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Simex Pharmaceutical Indonesia", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Sinar Herba Radix", klaster: "C", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Sinar Kaliman Sehat", klaster: "C", riwayat: "alt, akk, ka, cd" },
+    { nama: "PT Sinde Budi Sentosa", klaster: "A", riwayat: "m" },
+    { nama: "PT SINKONA INDONESIA LESTARI", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Soho Industri Pharmasi", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT SOLAS LANGGENG SEJAHTERA", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Sukses Abadi Farmindo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Supra Ferbindo Farma", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Surabaya Indah Permal", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Surya Borneo Higienis", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Suryaprana Nutrisindo", klaster: "C", riwayat: "tidak ada" },
+    { nama: "PT Teguhsindo Lestaritama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Tempo Natural Products", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Tempo Scan Pacific Tbk", klaster: "B", riwayat: "tidak ada" },
+    { nama: "PT Tirta Anugerah Mandiri", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Tradimun Mitra Sejahtera", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Tri Rahardja", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Triyasa Nagamas Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Tunggal Herbal Jaya", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Tunggal Idaman Abdi", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Ultra Sakti", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Unimax Power", klaster: "A", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Universal Pharmaceutical Industries", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Usaha Sekawan Farmasi Indone", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Yahi Utama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Yarindo Farmatama", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Yekatria Farma", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "PT Zena Nirmala Sentosa", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Prima Anugrah herbalindo", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Tropica Mas Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Ultratrend Biotech Indonesia", klaster: "A", riwayat: "tidak ada" },
+    { nama: "PT Universal Pharmaceutical Industri", klaster: "A", riwayat: "tidak ada" },
+    { nama: "T C Pharmaceutical Industries Co, LTD", klaster: "B", riwayat: "tidak ada" },
+    { nama: "T Pertiwi Agung", klaster: "A", riwayat: "tidak ada" },
+    { nama: "UD jamu Ibu Tjipto", klaster: "B", riwayat: "ada tapi belum ditulis" },
+    { nama: "UD PJ bisma sehat", klaster: "B", riwayat: "kofein, entero, ka" },
+    { nama: "UD San sidarta", klaster: "B", riwayat: "ada tapi belum ditulis" }
+    ];
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const main = document.getElementById('mainContent');
+        const overlay = document.getElementById('overlay');
+        
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('active');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            main.classList.toggle('expanded');
+        }
+    }
+
+    function showPage(pageId) {
+        document.getElementById('sectionInput').style.display = pageId === 'input' ? 'block' : 'none';
+        document.getElementById('sectionCluster').style.display = pageId === 'cluster' ? 'block' : 'none';
+        
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(pageId === 'input' ? 'menuInput' : 'menuCluster').classList.add('active');
+
+        if (window.innerWidth <= 768 && document.getElementById('sidebar').classList.contains('show')) {
+            toggleSidebar();
+        }
+        if(pageId === 'cluster') setTimeout(() => document.getElementById('lookupInput').focus(), 100);
+    }
+
+    function generateTimestamp() {
+        const d = new Date();
+        const tgl = d.getDate().toString().padStart(2, '0') + '/' + 
+                    (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getFullYear() + 
+                    ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        
+        document.getElementById('tglSampling').value = tgl;
+        document.getElementById('bulanAuto').value = String(d.getMonth() + 1).padStart(2, '0');
+    }
+
+    window.onload = generateTimestamp;
+
+    document.getElementById('samplingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSimpan');
+        
+        if (!document.getElementById('namaProdusen').value) {
+            alert("Pilih Produsen terlebih dahulu!");
+            showPage('cluster');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = "Mengirim...";
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwYi2O4V2abno37Z-GD-Z2lOp4aXGh4sKL6rTfe99JKkPqhZFmwO9Ej-89SPmTw73us/exec';
+        
+        const data = {
+            tanggal: document.getElementById('tglSampling').value,
+            namaProduk: document.getElementById('namaProduk').value,
+            namaProdusen: document.getElementById('namaProdusen').value,
+            kategori: document.getElementById('kategori').value,
+            subKategori: document.getElementById('subKategori').value,
+            metode: document.getElementById('metode').value,
+            nie: document.getElementById('nie').value,
+            batch: document.getElementById('noBatch').value,
+            expired: document.getElementById('expDate').value,
+            tempat: document.getElementById('tempatSampling').value,
+            bulan: document.getElementById('bulanAuto').value,
+            petugas: document.getElementById('petugas').value
+        };
+
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) })
+        .then(() => {
+            alert("✅ Data Berhasil Terkirim!");
+            document.getElementById('samplingForm').reset();
+            generateTimestamp();
+        })
+        .catch(() => alert("❌ Gagal Kirim."))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = "KIRIM KE GOOGLE SHEET";
+        });
+    });
+
+  function doLookup() {
+    const val = document.getElementById('lookupInput').value.toLowerCase();
+    const container = document.getElementById('lookupResults');
+    
+    // Cek apakah input minimal 2 huruf
+    if (val.length < 2) { 
+        container.innerHTML = ""; 
+        return; 
+    }
+
+    // Filter data dari dbProdusen
+    const filtered = dbProdusen.filter(i => i.nama.toLowerCase().includes(val)).slice(0, 10);
+    
+    if (filtered.length === 0) {
+        container.innerHTML = "<div class='text-muted p-3'>Produsen tidak ditemukan...</div>";
+        return;
+    }
+
+    // Tampilkan hasil
+    container.innerHTML = filtered.map(item => `
+        <div class="card p-3 mb-2 shadow-sm border-start border-4 ${item.klaster==='A'?'border-success':'border-warning'}" 
+             style="cursor:pointer" 
+             onclick="pilihProdusen('${item.nama.replace(/'/g, "\\'")}', '${item.riwayat}')">
+            <div class="d-flex justify-content-between">
+                <h6 class="fw-bold mb-0">${item.nama}</h6>
+                <span class="badge ${item.klaster==='A'?'bg-success':'bg-warning text-dark'}">KLASTER ${item.klaster}</span>
+            </div>
+            <small class="text-muted">Riwayat: ${item.riwayat}</small>
+        </div>
+    `).join('');
+}
+    
+function pilihProdusen(nama, riwayat) {
+    // Memasukkan nama dari database ke input
+    document.getElementById('namaProdusen').value = nama;
+    
+    const kategoriField = document.getElementById('kategori');
+    
+    // Logika Otomatis Kategori berdasarkan data DB
+    if(riwayat !== "tidak ada" && riwayat !== "ada tapi belum ditulis") {
+        kategoriField.value = "Produk dari Produsen Riwayat TMS";
+    } else if (nama.toLowerCase().includes("mlm")) {
+        kategoriField.value = "MLM";
+    } else {
+        // Jika dari DB tapi tidak ada riwayat khusus, set ke default atau biarkan pilih manual
+        kategoriField.value = "lain-lain"; 
+    }
+
+    // Bersihkan hasil pencarian dan kembali ke halaman input
+    document.getElementById('lookupInput').value = "";
+    document.getElementById('lookupResults').innerHTML = "";
+    showPage('input');
+}
+</script>
+</body>
+</html>
